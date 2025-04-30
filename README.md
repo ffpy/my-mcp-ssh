@@ -56,6 +56,8 @@ SSH connection parameters can be configured through environment variables:
 - `SSH_PASSWORD`: SSH password (if using password authentication)
 - `SSH_KEY_PATH`: SSH private key file path (if using key authentication)
 - `SSH_KEY_PASSPHRASE`: SSH private key passphrase (if needed)
+- `SESSION_TIMEOUT`: Session timeout in minutes, default is 30 minutes
+- `MAX_OUTPUT_LENGTH`: Maximum command output length in characters, default is 5000 characters
 
 ## Tool List
 

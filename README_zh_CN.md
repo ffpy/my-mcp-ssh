@@ -56,6 +56,8 @@ uv sync
 - `SSH_PASSWORD`: SSH 密码（如果使用密码认证）
 - `SSH_KEY_PATH`: SSH 私钥文件路径（如果使用密钥认证）
 - `SSH_KEY_PASSPHRASE`: SSH 私钥密码（如果需要）
+- `SESSION_TIMEOUT`: 会话超时时间（分钟），默认 30 分钟
+- `MAX_OUTPUT_LENGTH`: 命令输出最大长度（字符数），默认 5000 字符
 
 ## 工具列表
 
@@ -64,12 +66,12 @@ uv sync
 连接到SSH服务器
 
 **参数：**
-- `host`: SSH服务器主机名或IP地址，默认使用`SSH_HOST`环境变量
-- `port`: SSH服务器端口，默认使用`SSH_PORT`环境变量或`22`
-- `username`: SSH用户名，默认使用`SSH_USERNAME`环境变量
-- `password`: SSH密码，默认使用`SSH_PASSWORD`环境变量
-- `key_path`: SSH私钥文件路径，默认使用`SSH_KEY_PATH`环境变量或`~/.ssh/id_rsa`
-- `key_passphrase`: SSH私钥密码，默认使用`SSH_KEY_PASSPHRASE`环境变量
+- `host`: SSH服务器主机名或IP地址，默认使用 `SSH_HOST` 环境变量
+- `port`: SSH服务器端口，默认使用 `SSH_PORT` 环境变量或 `22`
+- `username`: SSH用户名，默认使用 `SSH_USERNAME` 环境变量
+- `password`: SSH密码，默认使用 `SSH_PASSWORD` 环境变量
+- `key_path`: SSH私钥文件路径，默认使用 `SSH_KEY_PATH` 环境变量或 `~/.ssh/id_rsa`
+- `key_passphrase`: SSH私钥密码，默认使用 `SSH_KEY_PASSPHRASE` 环境变量
 
 ### disconnect
 
