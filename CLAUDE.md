@@ -90,6 +90,7 @@ Optional `ssh-credentials.json` file for secure local storage of SSH passwords w
 - File permissions automatically set to 600 (owner read/write only)
 - Added to `.gitignore` to prevent accidental commits
 - Only stores passwords (not SSH keys or other sensitive data)
+- No caching - file is read fresh on each connection for immediate updates
 
 ### Dependencies
 

@@ -111,6 +111,10 @@ cp ssh-credentials.json.example ssh-credentials.json
 - 文件权限自动设置为 600（仅所有者可读写）
 - 文件已添加到 .gitignore 防止意外提交
 
+**注意：**
+- 凭据文件修改后立即生效，无需重启服务器
+- 每次连接时都会重新读取文件
+
 ## 工具列表
 
 ### connect

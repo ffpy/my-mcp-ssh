@@ -111,6 +111,10 @@ cp ssh-credentials.json.example ssh-credentials.json
 - File permissions are automatically set to 600 (owner read/write only)
 - The file is added to .gitignore to prevent accidental commits
 
+**Note:**
+- Credential file changes take effect immediately without server restart
+- The file is read fresh on each connection attempt
+
 ## Tool List
 
 ### connect
