@@ -68,11 +68,13 @@ Optional `ssh-credentials.json` file for secure local storage of SSH passwords w
 - `[0-9]` - matches any digit
 - `{dev,test,staging}` - matches any of the listed options
 
-**Password Priority Order**:
-1. Parameters passed to connect tool
+**Authentication Priority Order**:
+1. Parameters passed to connect tool (`password`, `key_path`)
 2. Exact match in credentials file (`username@host`)
 3. Pattern match in credentials file (first matching pattern)
-4. Environment variables (`SSH_PASSWORD`)
+4. Environment variable password (`SSH_PASSWORD`)
+5. Environment variable key (`SSH_KEY_PATH`)
+6. Default SSH key (`~/.ssh/id_rsa` if exists)
 
 **Example**:
 ```json

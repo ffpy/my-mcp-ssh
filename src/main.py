@@ -110,16 +110,22 @@ def connect(
     host = host or default_params["host"]
     port = port or default_params["port"]
     username = username or default_params["username"]
-    key_path = key_path or default_params["key_path"]
     key_passphrase = key_passphrase or default_params["key_passphrase"]
     
-    # 密码优先级：参数 > 凭据文件 > 环境变量
+    # 认证优先级：参数 > 凭据文件精确匹配 > 凭据文件通配符匹配 > 环境变量密码 > 环境变量密钥
+    
+    # 1. 如果没有传入密码，尝试从凭据文件获取
+    if not password and host and username:
+        credentials = load_ssh_credentials()
+        password = find_credential_by_pattern(host, username, credentials)
+    
+    # 2. 如果凭据文件没找到密码，使用环境变量密码
     if not password:
-        if host and username:
-            credentials = load_ssh_credentials()
-            password = find_credential_by_pattern(host, username, credentials)
-        if not password:
-            password = default_params["password"]
+        password = default_params["password"]
+    
+    # 3. 如果没有传入密钥路径，使用环境变量密钥
+    if not key_path:
+        key_path = default_params["key_path"]
     
     # 如果密码和密钥都没提供，使用默认的id_rsa
     if not password and not key_path:

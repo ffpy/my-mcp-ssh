@@ -99,11 +99,13 @@ cp ssh-credentials.json.example ssh-credentials.json
 - `[0-9]` - matches any digit
 - `{dev,test,staging}` - matches any of the listed options
 
-**Priority Order:**
-1. Parameters passed to connect tool
-2. Exact match in credentials file
-3. Pattern match in credentials file
-4. Environment variables
+**Authentication Priority Order:**
+1. Parameters passed to connect tool (`password`, `key_path`)
+2. Exact match in credentials file (`username@host`)
+3. Pattern match in credentials file (wildcards)
+4. Environment variable password (`SSH_PASSWORD`)
+5. Environment variable key (`SSH_KEY_PATH`)
+6. Default SSH key (`~/.ssh/id_rsa` if exists)
 
 **Security:**
 - File permissions are automatically set to 600 (owner read/write only)

@@ -99,11 +99,13 @@ cp ssh-credentials.json.example ssh-credentials.json
 - `[0-9]` - 匹配任意数字
 - `{dev,test,staging}` - 匹配列出的任意选项
 
-**优先级顺序：**
-1. 传递给 connect 工具的参数
-2. 凭据文件中的精确匹配
-3. 凭据文件中的模式匹配
-4. 环境变量
+**认证优先级顺序：**
+1. 传递给 connect 工具的参数（`password`, `key_path`）
+2. 凭据文件中的精确匹配（`username@host`）
+3. 凭据文件中的模式匹配（通配符）
+4. 环境变量密码（`SSH_PASSWORD`）
+5. 环境变量密钥（`SSH_KEY_PATH`）
+6. 默认SSH密钥（`~/.ssh/id_rsa` 如果存在）
 
 **安全特性：**
 - 文件权限自动设置为 600（仅所有者可读写）
