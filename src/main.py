@@ -123,8 +123,8 @@ def connect(
     if not password:
         password = default_params["password"]
     
-    # 3. 如果没有传入密钥路径，使用环境变量密钥
-    if not key_path:
+    # 3. 如果没有传入密钥路径且没有密码，使用环境变量密钥
+    if not key_path and not password:
         key_path = default_params["key_path"]
     
     # 如果密码和密钥都没提供，使用默认的id_rsa
