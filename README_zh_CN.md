@@ -48,7 +48,9 @@ uv sync
 
 ### 环境变量
 
-可通过环境变量配置 SSH 连接参数：
+#### SSH 连接默认值（可选功能）
+
+环境变量为 SSH 连接提供默认值，适用于频繁连接同一服务器或自动化环境：
 
 - `SSH_HOST`: SSH 服务器主机名或 IP 地址
 - `SSH_PORT`: SSH 服务器端口
@@ -56,8 +58,56 @@ uv sync
 - `SSH_PASSWORD`: SSH 密码（如果使用密码认证）
 - `SSH_KEY_PATH`: SSH 私钥文件路径（如果使用密钥认证）
 - `SSH_KEY_PASSPHRASE`: SSH 私钥密码（如果需要）
+
+**何时使用 SSH 环境变量：**
+- **重复连接**：多次连接同一服务器时
+- **CI/CD 流水线**：自动化部署脚本中
+- **开发环境**：为常用服务器设置默认值
+- **容器部署**：无需修改代码即可配置默认值
+
+**注意**：传递给 `connect` 工具的参数始终会覆盖环境变量。
+
+#### 服务器配置
+
+其他服务器行为配置：
+
 - `SESSION_TIMEOUT`: 会话超时时间（分钟），默认 30 分钟
 - `MAX_OUTPUT_LENGTH`: 命令输出最大长度（字符数），默认 5000 字符
+
+### SSH 凭据文件
+
+为了更好的安全性，你可以将 SSH 凭据存储在本地配置文件中，而不是以参数形式传递密码。
+
+1. 复制示例文件：
+```bash
+cp ssh-credentials.json.example ssh-credentials.json
+```
+
+2. 编辑 `ssh-credentials.json` 填入你的实际凭据：
+```json
+{
+  "root@192.168.1.100": "your_password",
+  "admin@web-[0-9].example.com": "web_password",
+  "deploy@server-{dev,test,staging}.company.com": "deploy_password",
+  "admin@*.internal.network": "internal_password"
+}
+```
+
+**支持的通配符模式：**
+- `*` - 匹配任意字符
+- `?` - 匹配单个字符
+- `[0-9]` - 匹配任意数字
+- `{dev,test,staging}` - 匹配列出的任意选项
+
+**优先级顺序：**
+1. 传递给 connect 工具的参数
+2. 凭据文件中的精确匹配
+3. 凭据文件中的模式匹配
+4. 环境变量
+
+**安全特性：**
+- 文件权限自动设置为 600（仅所有者可读写）
+- 文件已添加到 .gitignore 防止意外提交
 
 ## 工具列表
 
@@ -66,12 +116,12 @@ uv sync
 连接到SSH服务器
 
 **参数：**
-- `host`: SSH服务器主机名或IP地址，默认使用 `SSH_HOST` 环境变量
-- `port`: SSH服务器端口，默认使用 `SSH_PORT` 环境变量或 `22`
-- `username`: SSH用户名，默认使用 `SSH_USERNAME` 环境变量
-- `password`: SSH密码，默认使用 `SSH_PASSWORD` 环境变量
-- `key_path`: SSH私钥文件路径，默认使用 `SSH_KEY_PATH` 环境变量或 `~/.ssh/id_rsa`
-- `key_passphrase`: SSH私钥密码，默认使用 `SSH_KEY_PASSPHRASE` 环境变量
+- `host`: SSH服务器主机名或IP地址（可选）
+- `port`: SSH服务器端口（可选，默认22）
+- `username`: SSH用户名（可选）
+- `password`: SSH密码认证（可选）
+- `key_path`: SSH私钥文件路径认证（可选）
+- `key_passphrase`: SSH私钥密码（如需要，可选）
 
 ### disconnect
 

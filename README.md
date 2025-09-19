@@ -48,7 +48,9 @@ uv sync
 
 ### Environment Variables
 
-SSH connection parameters can be configured through environment variables:
+#### SSH Connection Defaults (Optional)
+
+Environment variables provide default values for SSH connections, useful when frequently connecting to the same server or in automated environments:
 
 - `SSH_HOST`: SSH server hostname or IP address
 - `SSH_PORT`: SSH server port
@@ -56,8 +58,56 @@ SSH connection parameters can be configured through environment variables:
 - `SSH_PASSWORD`: SSH password (if using password authentication)
 - `SSH_KEY_PATH`: SSH private key file path (if using key authentication)
 - `SSH_KEY_PASSPHRASE`: SSH private key passphrase (if needed)
+
+**When to use SSH environment variables:**
+- **Repeated connections**: When connecting to the same server multiple times
+- **CI/CD pipelines**: For automated deployment scripts
+- **Development environments**: Set defaults for your commonly used servers
+- **Container deployments**: Configure defaults without modifying code
+
+**Note**: Parameters passed to the `connect` tool always override environment variables.
+
+#### Server Configuration
+
+Additional server behavior can be configured:
+
 - `SESSION_TIMEOUT`: Session timeout in minutes, default is 30 minutes
 - `MAX_OUTPUT_LENGTH`: Maximum command output length in characters, default is 5000 characters
+
+### SSH Credentials File
+
+For better security, you can store SSH credentials in a local configuration file instead of passing passwords as parameters.
+
+1. Copy the example file:
+```bash
+cp ssh-credentials.json.example ssh-credentials.json
+```
+
+2. Edit `ssh-credentials.json` with your actual credentials:
+```json
+{
+  "root@192.168.1.100": "your_password",
+  "admin@web-[0-9].example.com": "web_password",
+  "deploy@server-{dev,test,staging}.company.com": "deploy_password",
+  "admin@*.internal.network": "internal_password"
+}
+```
+
+**Supported Patterns:**
+- `*` - matches any characters
+- `?` - matches single character  
+- `[0-9]` - matches any digit
+- `{dev,test,staging}` - matches any of the listed options
+
+**Priority Order:**
+1. Parameters passed to connect tool
+2. Exact match in credentials file
+3. Pattern match in credentials file
+4. Environment variables
+
+**Security:**
+- File permissions are automatically set to 600 (owner read/write only)
+- The file is added to .gitignore to prevent accidental commits
 
 ## Tool List
 
@@ -66,12 +116,12 @@ SSH connection parameters can be configured through environment variables:
 Connect to an SSH server
 
 **Parameters:**
-- `host`: SSH server hostname or IP address, defaults to `SSH_HOST` environment variable
-- `port`: SSH server port, defaults to `SSH_PORT` environment variable or `22`
-- `username`: SSH username, defaults to `SSH_USERNAME` environment variable
-- `password`: SSH password, defaults to `SSH_PASSWORD` environment variable
-- `key_path`: SSH private key file path, defaults to `SSH_KEY_PATH` environment variable or `~/.ssh/id_rsa`
-- `key_passphrase`: SSH private key passphrase, defaults to `SSH_KEY_PASSPHRASE` environment variable
+- `host`: SSH server hostname or IP address (optional)
+- `port`: SSH server port (optional, default 22)
+- `username`: SSH username (optional)
+- `password`: SSH password for authentication (optional)
+- `key_path`: SSH private key file path for authentication (optional)
+- `key_passphrase`: SSH private key passphrase if needed (optional)
 
 ### disconnect
 

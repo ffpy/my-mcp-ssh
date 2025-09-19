@@ -10,3 +10,6 @@ wheels/
 .venv
 
 .cursor/
+
+# SSH credentials
+ssh-credentials.json

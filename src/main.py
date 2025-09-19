@@ -4,6 +4,9 @@
 import os
 import paramiko
 import uuid
+import json
+import fnmatch
+import stat
 from typing import Dict, List, Any, Optional
 from mcp.server.fastmcp import FastMCP
 from session import Session, SessionManager
@@ -27,6 +30,7 @@ DEFAULT_KEY_PATH = "~/.ssh/id_rsa"
 MESSAGE = "message"
 LOCAL_PATH = "local_path"
 REMOTE_PATH = "remote_path"
+CREDENTIALS_FILE = "ssh-credentials.json"
 
 # 创建 MCP 服务器
 mcp = FastMCP("SSH连接服务器")
@@ -41,6 +45,44 @@ MAX_OUTPUT_LENGTH = int(os.environ.get(ENV_MAX_OUTPUT_LENGTH, 5000))
 session_manager = SessionManager(timeout_minutes=SESSION_TIMEOUT)
 
 
+def load_ssh_credentials() -> Dict[str, str]:
+    """加载SSH凭据配置文件"""
+    try:
+        if os.path.exists(CREDENTIALS_FILE):
+            # 检查文件权限
+            check_credentials_file_permissions()
+            with open(CREDENTIALS_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"Warning: Failed to load {CREDENTIALS_FILE}: {str(e)}")
+    return {}
+
+
+def check_credentials_file_permissions():
+    """检查并修正凭据文件权限"""
+    if os.path.exists(CREDENTIALS_FILE):
+        current_permissions = oct(os.stat(CREDENTIALS_FILE).st_mode)[-3:]
+        if current_permissions != '600':
+            os.chmod(CREDENTIALS_FILE, stat.S_IRUSR | stat.S_IWUSR)
+            print(f"Fixed {CREDENTIALS_FILE} permissions to 600")
+
+
+def find_credential_by_pattern(host: str, username: str, credentials: Dict[str, str]) -> Optional[str]:
+    """通过模式匹配查找凭据"""
+    target = f"{username}@{host}"
+    
+    # 1. 精确匹配
+    if target in credentials:
+        return credentials[target]
+    
+    # 2. 通配符匹配 (按配置文件顺序)
+    for pattern, password in credentials.items():
+        if fnmatch.fnmatch(target, pattern):
+            return password
+    
+    return None
+
+
 @mcp.tool()
 def connect(
     host: str = "",
@@ -53,13 +95,12 @@ def connect(
     """Connect to SSH server
     
     Args:
-        session_id: Session ID, will be automatically generated if not provided
-        host: SSH server hostname or IP address, defaults to SSH_HOST environment variable
-        port: SSH server port, defaults to SSH_PORT environment variable or 22
-        username: SSH username, defaults to SSH_USERNAME environment variable
-        password: SSH password, defaults to SSH_PASSWORD environment variable
-        key_path: SSH private key file path, defaults to SSH_KEY_PATH environment variable or ~/.ssh/id_rsa
-        key_passphrase: SSH private key passphrase, defaults to SSH_KEY_PASSPHRASE environment variable
+        host: SSH server hostname or IP address (optional)
+        port: SSH server port (optional, default 22)
+        username: SSH username (optional)
+        password: SSH password for authentication (optional)
+        key_path: SSH private key file path for authentication (optional)
+        key_passphrase: SSH private key passphrase if needed (optional)
     
     Returns:
         Connection status
@@ -69,9 +110,16 @@ def connect(
     host = host or default_params["host"]
     port = port or default_params["port"]
     username = username or default_params["username"]
-    password = password or default_params["password"]
     key_path = key_path or default_params["key_path"]
     key_passphrase = key_passphrase or default_params["key_passphrase"]
+    
+    # 密码优先级：参数 > 凭据文件 > 环境变量
+    if not password:
+        if host and username:
+            credentials = load_ssh_credentials()
+            password = find_credential_by_pattern(host, username, credentials)
+        if not password:
+            password = default_params["password"]
     
     # 如果密码和密钥都没提供，使用默认的id_rsa
     if not password and not key_path:
